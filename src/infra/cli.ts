@@ -8,6 +8,7 @@ import {
   cancel,
   note,
   isCancel,
+  multiselect,
 } from '@clack/prompts'
 import type { PatchSummaryItem } from '../core/patch-types.js'
 import { patchRules } from '../config/patch-rules.js'
@@ -95,5 +96,43 @@ export function createSpinner() {
   return {
     start: (msg: string) => s.start(msg),
     stop: (msg: string) => s.stop(msg),
+  }
+}
+
+export type FileSelectionMode = 'all' | 'select'
+
+export async function promptFileSelectionMode(): Promise<FileSelectionMode> {
+  const result = await select({
+    message: 'Which files to include?',
+    options: [
+      { value: 'all', label: 'Include all files' },
+      { value: 'select', label: 'Select files to include' },
+    ],
+  })
+
+  if (isCancel(result)) showCancel()
+  return result as FileSelectionMode
+}
+
+export async function promptSelectFiles(files: string[]): Promise<string[]> {
+  const result = await multiselect({
+    message: 'Select files to include:',
+    options: files.map((file) => ({
+      value: file,
+      label: file,
+    })),
+    required: true,
+  })
+
+  if (isCancel(result)) showCancel()
+  return result as string[]
+}
+
+export function showFileSelectionWarning(mode: string): void {
+  if (mode === 'branch-compare') {
+    note(
+      'When selecting specific files in branch compare mode,\ncommit messages will not be included in the patch.',
+      'Note'
+    )
   }
 }
