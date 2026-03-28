@@ -1,4 +1,4 @@
-export type { PatchMode, PatchParams, GitCommand, PatchSummaryItem, PatchRule } from './core/patch-types.js'
+export type { PatchMode, PatchParams, GitCommand, PatchSummaryItem, PatchRule, FileSelection } from './core/patch-types.js'
 export { sanitizeFileSegment } from './core/sanitize-file-segment.js'
 export { ensurePatchExtension } from './core/ensure-patch-extension.js'
 export { buildStagedFileName } from './core/build-staged-file-name.js'

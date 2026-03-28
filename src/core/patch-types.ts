@@ -1,8 +1,15 @@
 export type PatchMode = 'staged' | 'branch-compare'
 
+export type FileSelection = {
+  mode: 'all'
+} | {
+  mode: 'selected'
+  files: string[]
+}
+
 export type PatchParams =
-  | { mode: 'staged' }
-  | { mode: 'branch-compare'; baseBranch: string; featureBranch: string }
+  | { mode: 'staged'; fileSelection?: FileSelection }
+  | { mode: 'branch-compare'; baseBranch: string; featureBranch: string; fileSelection?: FileSelection }
 
 export type GitCommand = {
   command: string
