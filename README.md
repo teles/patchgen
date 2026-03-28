@@ -2,12 +2,40 @@
 
 A CLI tool to generate `.patch` files from git repositories — faster and friendlier than running git commands manually.
 
+```mermaid
+flowchart TD
+    A[Start] --> B{Select patch type}
+    B -->|Staged changes| C[Detect staged files]
+    B -->|Compare branches| D[Enter base & feature branches]
+    D --> E[Detect changed files]
+    C --> F{Include all files?}
+    E --> F
+    F -->|Include all files| G[Enter output file name]
+    F -->|Select files to include| H[Choose files from list]
+    H --> G
+    G --> I[Show summary]
+    I --> J{Confirm?}
+    J -->|Yes| K[Generate patch]
+    J -->|No| L[Cancel]
+    K --> M[Write .patch file]
+    M --> N[Done]
+```
+
 ## Overview
 
 `patchgen` guides you through a simple interactive flow to generate `.patch` files from your git repository. It supports two modes:
 
 - **Staged changes** — Captures everything currently staged with `git diff --cached`
 - **Compare branches** — Captures all commits in a feature branch not present in a base branch using `git format-patch`
+
+### File Selection
+
+After choosing the patch type, you can decide which files to include:
+
+- **Include all files** — Generates the patch with all changed files
+- **Select files to include** — Shows a multi-select list to pick specific files
+
+> **Note:** When using "Select files to include" in Compare branches mode, the patch is generated with `git diff` instead of `git format-patch`, so **commit messages will not be included** in the output.
 
 ## Requirements
 
@@ -41,11 +69,12 @@ The CLI will guide you through:
 
 1. Detecting the git repository
 2. Choosing the patch type
-3. Collecting the necessary inputs
-4. Suggesting an output file name (editable)
-5. Showing a summary before generating
-6. Asking for confirmation
-7. Writing the `.patch` file to the current directory
+3. Collecting the necessary inputs (branches, if applicable)
+4. Selecting which files to include (all or specific files)
+5. Suggesting an output file name (editable)
+6. Showing a summary before generating
+7. Asking for confirmation
+8. Writing the `.patch` file to the current directory
 
 ## Examples
 
@@ -58,6 +87,10 @@ The CLI will guide you through:
 ◆ Select patch type:
 ● Staged changes — Generate a patch from staged files
 ○ Compare branches — ...
+
+◆ Which files to include?
+● Include all files
+○ Select files to include
 
 ◆ Output file name: › staged.patch
 
@@ -88,12 +121,64 @@ The CLI will guide you through:
 ◆ Base branch: › main
 ◆ Feature branch: › feat/login
 
+◆ Which files to include?
+● Include all files
+○ Select files to include
+
 ◆ Output file name: › main-feat-login.patch
 
 ┌ Summary
 │ Patch type: Compare branches
 │ Base branch: main
 │ Feature branch: feat/login
+│ Output file: main-feat-login.patch
+└
+
+✔ Generate patch? Yes
+
+✔ Generating patch...
+✔ Writing file...
+
+◆ Patch saved to main-feat-login.patch
+◆ All done!
+```
+
+### Selecting specific files (Compare branches)
+
+```
+◆ patchgen — Generate .patch files from your git repository
+✔ Git repository detected.
+
+◆ Select patch type:
+○ Staged changes — ...
+● Compare branches — ...
+
+◆ Base branch: › main
+◆ Feature branch: › feat/login
+
+◆ Which files to include?
+○ Include all files
+● Select files to include
+
+┌ Note
+│ When selecting specific files in branch compare mode,
+│ commit messages will not be included in the patch.
+└
+
+◆ Select files to include:
+◼ src/auth/login.ts
+◼ src/auth/utils.ts
+◻ src/config.ts
+◻ tests/auth.test.ts
+
+◆ Output file name: › main-feat-login.patch
+
+┌ Summary
+│ Patch type: Compare branches
+│ Base branch: main
+│ Feature branch: feat/login
+│ Files selected: 2 files
+│ Note: Commit messages not included
 │ Output file: main-feat-login.patch
 └
 
