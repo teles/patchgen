@@ -42,3 +42,21 @@ export async function runGitCommand(cmd: GitCommand): Promise<string> {
   const { stdout } = await execa(cmd.command, cmd.args)
   return stdout
 }
+
+export async function getStagedFiles(): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['diff', '--cached', '--name-only'])
+    return stdout.trim().split('\n').filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
+export async function getBranchCompareFiles(baseBranch: string, featureBranch: string): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['diff', '--name-only', `${baseBranch}..${featureBranch}`])
+    return stdout.trim().split('\n').filter(Boolean)
+  } catch {
+    return []
+  }
+}
