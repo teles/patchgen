@@ -1,6 +1,6 @@
 {
   "name": "patchgen",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A CLI tool to generate .patch files from git repositories",
   "type": "module",
   "main": "./dist/index.js",
@@ -70,7 +70,9 @@
   },
   "packageManager": "pnpm@10.22.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "publishConfig": {
     "access": "public"
