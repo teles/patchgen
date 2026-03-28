@@ -15,4 +15,25 @@ describe('buildBranchCompareGitCommand', () => {
       args: ['format-patch', 'develop..feature/auth', '--stdout'],
     })
   })
+
+  it('uses git diff when files are selected (loses commit messages)', () => {
+    expect(buildBranchCompareGitCommand('main', 'feat-login', ['src/app.ts'])).toEqual({
+      command: 'git',
+      args: ['diff', 'main..feat-login', '--', 'src/app.ts'],
+    })
+  })
+
+  it('uses git diff with multiple selected files', () => {
+    expect(buildBranchCompareGitCommand('main', 'feat-login', ['src/app.ts', 'src/utils.ts'])).toEqual({
+      command: 'git',
+      args: ['diff', 'main..feat-login', '--', 'src/app.ts', 'src/utils.ts'],
+    })
+  })
+
+  it('uses format-patch when files array is empty', () => {
+    expect(buildBranchCompareGitCommand('main', 'feat-login', [])).toEqual({
+      command: 'git',
+      args: ['format-patch', 'main..feat-login', '--stdout'],
+    })
+  })
 })
