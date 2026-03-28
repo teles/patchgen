@@ -4,19 +4,26 @@ import { buildStagedGitCommand } from '../core/build-staged-git-command.js'
 import { buildBranchCompareGitCommand } from '../core/build-branch-compare-git-command.js'
 import { validateBranchCompareInput } from '../core/validate-branch-compare-input.js'
 import { buildStagedSummary, buildBranchCompareSummary } from '../core/build-summary.js'
-import type { PatchRule, PatchParams } from '../core/patch-types.js'
+import type { PatchRule, PatchParams, FileSelection } from '../core/patch-types.js'
 
 type StagedParams = Extract<PatchParams, { mode: 'staged' }>
 type BranchCompareParams = Extract<PatchParams, { mode: 'branch-compare' }>
+
+function getSelectedFiles(fileSelection?: FileSelection): string[] | undefined {
+  if (fileSelection?.mode === 'selected') {
+    return fileSelection.files
+  }
+  return undefined
+}
 
 const stagedRule: PatchRule<StagedParams> = {
   type: 'staged',
   label: 'Staged changes',
   description: 'Generate a patch from staged files',
   buildDefaultFileName: () => buildStagedFileName(),
-  buildGitCommand: () => buildStagedGitCommand(),
+  buildGitCommand: (params) => buildStagedGitCommand(getSelectedFiles(params.fileSelection)),
   validate: () => [],
-  buildSummary: (_params, outputFileName) => buildStagedSummary(outputFileName),
+  buildSummary: (params, outputFileName) => buildStagedSummary(outputFileName, params.fileSelection),
 }
 
 const branchCompareRule: PatchRule<BranchCompareParams> = {
@@ -24,10 +31,14 @@ const branchCompareRule: PatchRule<BranchCompareParams> = {
   label: 'Compare branches',
   description: 'Generate a patch from commits in a feature branch not present in a base branch',
   buildDefaultFileName: (params) => buildBranchCompareFileName(params.baseBranch, params.featureBranch),
-  buildGitCommand: (params) => buildBranchCompareGitCommand(params.baseBranch, params.featureBranch),
+  buildGitCommand: (params) => buildBranchCompareGitCommand(
+    params.baseBranch,
+    params.featureBranch,
+    getSelectedFiles(params.fileSelection)
+  ),
   validate: (params) => validateBranchCompareInput(params.baseBranch, params.featureBranch),
   buildSummary: (params, outputFileName) =>
-    buildBranchCompareSummary(params.baseBranch, params.featureBranch, outputFileName),
+    buildBranchCompareSummary(params.baseBranch, params.featureBranch, outputFileName, params.fileSelection),
 }
 
 export const patchRules: PatchRule[] = [
