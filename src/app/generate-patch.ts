@@ -1,14 +1,17 @@
-import type { PatchParams } from '../core/patch-types.js'
+import type { PatchParams, FileSelection } from '../core/patch-types.js'
 import { findPatchRule } from '../config/patch-rules.js'
-import { runGitCommand } from '../infra/git.js'
+import { runGitCommand, getStagedFiles, getBranchCompareFiles } from '../infra/git.js'
 import { writePatchFile, fileExists } from '../infra/fs.js'
 import {
   promptPatchMode,
   promptBranchName,
   promptOutputFileName,
   promptConfirm,
+  promptFileSelectionMode,
+  promptSelectFiles,
   showSummary,
   showError,
+  showFileSelectionWarning,
   createSpinner,
 } from '../infra/cli.js'
 import { getCurrentBranch, getDefaultBranch } from '../infra/git.js'
@@ -30,6 +33,39 @@ async function collectParams(mode: string): Promise<PatchParams> {
   return { mode: 'staged' }
 }
 
+async function getChangedFiles(params: PatchParams): Promise<string[]> {
+  if (params.mode === 'staged') {
+    return getStagedFiles()
+  }
+  return getBranchCompareFiles(params.baseBranch, params.featureBranch)
+}
+
+async function collectFileSelection(params: PatchParams): Promise<FileSelection | undefined> {
+  const files = await getChangedFiles(params)
+  
+  if (files.length === 0) {
+    return undefined
+  }
+
+  const selectionMode = await promptFileSelectionMode()
+  
+  if (selectionMode === 'all') {
+    return { mode: 'all' }
+  }
+
+  showFileSelectionWarning(params.mode)
+  const selectedFiles = await promptSelectFiles(files)
+  
+  return { mode: 'selected', files: selectedFiles }
+}
+
+function applyFileSelection(params: PatchParams, fileSelection?: FileSelection): PatchParams {
+  if (params.mode === 'staged') {
+    return { ...params, fileSelection }
+  }
+  return { ...params, fileSelection }
+}
+
 async function resolveOutputFileName(rule: ReturnType<typeof findPatchRule>, params: PatchParams): Promise<string> {
   if (!rule) showError('Unknown patch type.')
   const defaultFileName = rule!.buildDefaultFileName(params)
@@ -46,7 +82,7 @@ async function handleOverwrite(outputFileName: string): Promise<void> {
 
 export async function generatePatch(): Promise<void> {
   const mode = await promptPatchMode()
-  const params = await collectParams(mode)
+  let params = await collectParams(mode)
 
   const rule = findPatchRule(mode)
   if (!rule) showError('Unknown patch type.')
@@ -55,6 +91,10 @@ export async function generatePatch(): Promise<void> {
   if (validationErrors.length > 0) {
     showError(validationErrors.join('\n'))
   }
+
+  // File selection step
+  const fileSelection = await collectFileSelection(params)
+  params = applyFileSelection(params, fileSelection)
 
   const outputFileName = await resolveOutputFileName(rule, params)
 
