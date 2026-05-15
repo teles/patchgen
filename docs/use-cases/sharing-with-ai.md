@@ -35,7 +35,7 @@ Patches only contain the diff, not the entire file contents. This means:
 npx patchgen
 ```
 
-Follow the prompts to create a `.patch` file from your staged changes or branch diff.
+Follow the prompts to create a `.patch` file from your staged changes, branch diff, or tag diff.
 
 ### 2. Share with AI
 
@@ -108,6 +108,19 @@ npx patchgen
 ```
 
 This gives the AI the full scope of your feature branch.
+
+### Tag Comparison for Release Notes
+
+Use **tag comparison** to give an AI assistant the changes between releases:
+
+```bash
+npx patchgen
+# Select: Compare tags
+# From tag: v1.0.0, To tag: v1.1.0
+# → share v1.0.0-v1.1.0.patch
+```
+
+This is useful when asking for a release-note draft or a summary of user-facing changes.
 
 ::: tip
 Patch files are especially useful when working with AI assistants that have file upload or large context support. Instead of pasting multiple files, upload a single `.patch` file.

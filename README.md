@@ -1,6 +1,6 @@
 # patchgen
 
-A guided CLI to generate Git patch files from staged changes and branch diffs.
+A guided CLI to generate Git patch files from staged changes, branch diffs, and tag diffs.
 
 `patchgen` helps developers generate `.patch` files with a cleaner and more guided workflow than manually typing Git patch commands.
 
@@ -21,6 +21,7 @@ patchgen
 
 - Generate patches from staged changes
 - Generate patches from branch diffs
+- Generate patches from tag diffs
 - Include all files or select specific files to include
 - Guided interactive CLI
 - Predictable `.patch` output flow
@@ -41,14 +42,18 @@ Generate a patch from files already staged in Git (`git diff --cached`).
 
 Generate a patch from the diff between a base branch and a feature branch (`git format-patch`).
 
+### Compare tags
+
+Generate a patch from the commits between two tags (`git format-patch`). This is useful when preparing release notes or reviewing what changed between releases.
+
 ### File selection
 
-In both flows, after choosing the patch type, you can decide which files to include:
+In every flow, after choosing the patch type, you can decide which files to include:
 
 - **Include all files** — uses all changed files
 - **Select files to include** — shows a multi-select list to pick specific files
 
-> **Note:** When using "Select files to include" in Compare branches mode, the patch is generated with `git diff` instead of `git format-patch`, so **commit messages will not be included** in the output.
+> **Note:** When using "Select files to include" in Compare branches or Compare tags mode, the patch is generated with `git diff` instead of `git format-patch`, so **commit messages will not be included** in the output.
 
 ## Example
 
@@ -61,6 +66,7 @@ In both flows, after choosing the patch type, you can decide which files to incl
 ◆ Select patch type:
 ● Staged changes — Generate a patch from staged files
 ○ Compare branches — ...
+○ Compare tags — ...
 
 ◆ Which files to include?
 ● Include all files
@@ -92,6 +98,7 @@ In both flows, after choosing the patch type, you can decide which files to incl
 ◆ Select patch type:
 ○ Staged changes — ...
 ● Compare branches — Generate a patch from commits in a feature branch not present in a base branch
+○ Compare tags — ...
 
 ◆ Base branch: › main
 ◆ Feature branch: › feat/login
@@ -131,6 +138,43 @@ In both flows, after choosing the patch type, you can decide which files to incl
 ◆ All done!
 ```
 
+### Compare tags — include all files
+
+```
+◆ patchgen — Generate .patch files from your git repository
+✔ Git repository detected.
+
+◆ Select patch type:
+○ Staged changes — ...
+○ Compare branches — ...
+● Compare tags — Generate a patch from commits between two tags, useful for release notes
+
+◆ From tag: › v1.0.0
+◆ To tag: › v1.1.0
+
+◆ Which files to include?
+● Include all files
+○ Select files to include
+
+◆ Output file name: › v1.0.0-v1.1.0.patch
+
+┌ Summary
+│ Patch type: Compare tags
+│ From tag: v1.0.0
+│ To tag: v1.1.0
+│ Output file: v1.0.0-v1.1.0.patch
+└
+
+✔ Generate patch? Yes
+
+✔ Generating patch...
+✔ Done.
+✔ Writing file...
+✔ Patch saved to v1.0.0-v1.1.0.patch
+
+◆ All done!
+```
+
 ## Requirements
 
 - Git
@@ -149,7 +193,7 @@ In both flows, after choosing the patch type, you can decide which files to incl
 - `--output <dir>` flag
 - Config file support (`.patchgenrc`)
 - Colorized diff preview
-- Shell completions for branch names
+- Shell completions for branch and tag names
 
 ## Flow diagram
 
@@ -158,7 +202,9 @@ flowchart TD
     A([Start]) --> B{Select patch type}
     B -->|Staged changes| C[Detect staged files]
     B -->|Compare branches| D[Enter base & feature branches]
+    B -->|Compare tags| T[Enter from & to tags]
     D --> E[Detect changed files]
+    T --> E
     C --> F{Which files to include?}
     E --> F
     F -->|Include all files| G[Enter output file name]

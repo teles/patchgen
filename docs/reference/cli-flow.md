@@ -15,7 +15,9 @@ flowchart TD
     A([Start]) --> B{Select patch type}
     B -->|Staged changes| C[Detect staged files]
     B -->|Compare branches| D[Enter base & feature branches]
+    B -->|Compare tags| T[Enter from & to tags]
     D --> E[Detect changed files]
+    T --> E
     C --> F{Which files to include?}
     E --> F
     F -->|Include all files| G[Enter output file name]
@@ -51,9 +53,10 @@ If not, it exits with an error:
 ◆ Select patch type:
 ● Staged changes — Generate a patch from staged files
 ○ Compare branches — Generate a patch from commits in a feature branch not present in a base branch
+○ Compare tags — Generate a patch from commits between two tags, useful for release notes
 ```
 
-### 3. Branch Input (Compare Only)
+### 3. Compare Input
 
 For branch comparison, patchgen prompts for two branches:
 
@@ -65,6 +68,17 @@ For branch comparison, patchgen prompts for two branches:
 Default suggestions:
 - **Base branch** — detected default branch (`main` or `master`)
 - **Feature branch** — currently checked-out branch
+
+For tag comparison, patchgen prompts for two tags:
+
+```
+◆ From tag: › v1.0.0
+◆ To tag: › v1.1.0
+```
+
+Default suggestions:
+- **From tag** — second most recent tag, when available
+- **To tag** — most recent tag, when available
 
 ### 4. File Selection
 
@@ -92,6 +106,7 @@ If "Select files to include":
 Default names:
 - **Staged** → `staged.patch`
 - **Branch compare** → `{base}-{feature}.patch` (e.g., `main-feat-login.patch`)
+- **Tag compare** → `{from-tag}-{to-tag}.patch` (e.g., `v1.0.0-v1.1.0.patch`)
 
 The `.patch` extension is added automatically if omitted.
 
@@ -114,6 +129,17 @@ Branch compare with file selection shows additional info:
 │ Files selected: 2 files
 │ Note: Commit messages not included
 │ Output file: main-feat-login.patch
+└
+```
+
+Tag compare shows the selected tag range:
+
+```
+┌ Summary
+│ Patch type: Compare tags
+│ From tag: v1.0.0
+│ To tag: v1.1.0
+│ Output file: v1.0.0-v1.1.0.patch
 └
 ```
 
@@ -155,6 +181,7 @@ If the output file already exists:
 | Not a git repository | "This directory is not a Git repository." |
 | No staged changes | "No staged changes found." |
 | No differences between branches | "No differences found between 'main' and 'feat/login'." |
+| No differences between tags | "No differences found between tags 'v1.0.0' and 'v1.1.0'." |
 | Git command failure | "Git error: {details}" |
 | File write failure | "File error: {details}" |
 | User cancels at any prompt | "Operation cancelled." |

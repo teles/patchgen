@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "patchgen",
   description:
-    "A guided CLI to generate Git patch files from staged changes and branch diffs.",
+    "A guided CLI to generate Git patch files from staged changes, branch diffs, and tag diffs.",
   base: "/patchgen/",
 
   head: [
@@ -38,6 +38,7 @@ export default defineConfig({
           items: [
             { text: "Staged Changes", link: "/use-cases/staged-changes" },
             { text: "Compare Branches", link: "/use-cases/compare-branches" },
+            { text: "Compare Tags", link: "/use-cases/compare-tags" },
             { text: "File Selection", link: "/use-cases/file-selection" },
             {
               text: "Sharing with AI / LLMs",

@@ -47,13 +47,13 @@ This preserves individual commit messages, authorship, and dates in the patch ou
 ### Selected Files (diff)
 
 ```bash
-git diff <base>...<feature> -- file1.ts file2.ts
+git diff <base>..<feature> -- file1.ts file2.ts
 ```
 
 Example:
 
 ```bash
-git diff main...feat/login -- src/auth/login.ts src/auth/utils.ts
+git diff main..feat/login -- src/auth/login.ts src/auth/utils.ts
 ```
 
 ::: info Why `git diff` instead of `git format-patch`?
@@ -65,7 +65,45 @@ git diff main...feat/login -- src/auth/login.ts src/auth/utils.ts
 To show the file selection list, patchgen runs:
 
 ```bash
-git diff --name-only <base>...<feature>
+git diff --name-only <base>..<feature>
+```
+
+## Tag Comparison
+
+### All Files (format-patch)
+
+```bash
+git format-patch <from-tag>..<to-tag> --stdout
+```
+
+Example:
+
+```bash
+git format-patch v1.0.0..v1.1.0 --stdout
+```
+
+This preserves individual commit messages, authorship, and dates in the patch output.
+
+### Selected Files (diff)
+
+```bash
+git diff <from-tag>..<to-tag> -- file1.ts file2.ts
+```
+
+Example:
+
+```bash
+git diff v1.0.0..v1.1.0 -- src/auth/login.ts src/auth/utils.ts
+```
+
+As with branch comparison, selecting files uses `git diff`, which can filter by path but does not include commit messages.
+
+### Listing Changed Files
+
+To show the file selection list, patchgen runs:
+
+```bash
+git diff --name-only <from-tag>..<to-tag>
 ```
 
 ## Other Git Commands
@@ -99,7 +137,7 @@ Returns the name of the currently checked-out branch.
 patchgen builds all Git commands as structured objects (command + args), never as concatenated strings. This ensures:
 
 - No shell injection issues
-- Correct handling of branch names with special characters
+- Correct handling of branch and tag names with special characters
 - Predictable, testable command construction
 
 Example internal representation:

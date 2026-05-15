@@ -4,7 +4,7 @@ layout: home
 hero:
   name: patchgen
   text: Git patch files made easy
-  tagline: A guided CLI to generate .patch files from staged changes and branch diffs.
+  tagline: A guided CLI to generate .patch files from staged changes, branch diffs, and tag diffs.
   actions:
     - theme: brand
       text: Get Started
@@ -20,6 +20,9 @@ features:
   - icon: 🔀
     title: Branch Comparison
     details: Create patches from the diff between any two branches — base and feature.
+  - icon: 🏷️
+    title: Tag Comparison
+    details: Compare release tags to capture changes for release notes and reviews.
   - icon: 📋
     title: File Selection
     details: Include all changed files or pick specific ones from a multi-select list.
@@ -47,6 +50,7 @@ npx patchgen
 ◆ Select patch type:
 ● Staged changes
 ○ Compare branches
+○ Compare tags
 
 ◆ Which files to include?
 ● Include all files

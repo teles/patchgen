@@ -20,7 +20,7 @@ Each invocation generates one `.patch` file. To create multiple patches, run pat
 
 ### No Commit Message Filtering
 
-When comparing branches with file selection, commit messages are not available because `git diff` is used instead of `git format-patch`. There is no way to include commit messages and filter by files at the same time.
+When comparing branches or tags with file selection, commit messages are not available because `git diff` is used instead of `git format-patch`. There is no way to include commit messages and filter by files at the same time.
 
 ## Roadmap
 
@@ -60,7 +60,7 @@ Show a colorized preview of the patch diff before saving, so you can verify the 
 
 ### Shell Completions
 
-Tab completions for branch names and common options in bash, zsh, and fish.
+Tab completions for branch names, tag names, and common options in bash, zsh, and fish.
 
 ---
 

@@ -39,6 +39,7 @@ npx patchgen
 ◆ Select patch type:
 ● Staged changes — Generate a patch from staged files
 ○ Compare branches — ...
+○ Compare tags — ...
 
 ◆ Which files to include?
 ● Include all files

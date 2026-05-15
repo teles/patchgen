@@ -1,6 +1,6 @@
 # File Selection
 
-In both patch modes, patchgen lets you choose which files to include in the generated patch.
+In every patch mode, patchgen lets you choose which files to include in the generated patch.
 
 ## Selection Modes
 
@@ -45,7 +45,15 @@ git diff --cached --name-only
 patchgen runs `git diff --name-only` between the two branches:
 
 ```bash
-git diff --name-only main...feat/login
+git diff --name-only main..feat/login
+```
+
+### Tag Comparison
+
+patchgen runs `git diff --name-only` between the two tags:
+
+```bash
+git diff --name-only v1.0.0..v1.1.0
 ```
 
 ## Impact on Git Commands
@@ -66,10 +74,17 @@ Both produce the same type of output — only the scope is different.
 | Selection    | Command                                              |
 | ------------ | ---------------------------------------------------- |
 | All files    | `git format-patch main..feat/login --stdout`         |
-| Select files | `git diff main...feat/login -- file1.ts file2.ts`    |
+| Select files | `git diff main..feat/login -- file1.ts file2.ts`     |
+
+### Tag Comparison
+
+| Selection    | Command                                              |
+| ------------ | ---------------------------------------------------- |
+| All files    | `git format-patch v1.0.0..v1.1.0 --stdout`           |
+| Select files | `git diff v1.0.0..v1.1.0 -- file1.ts file2.ts`       |
 
 ::: warning Important difference
-When selecting files in **branch compare** mode, patchgen uses `git diff` instead of `git format-patch`. This means **commit messages are not included** in the patch output.
+When selecting files in **branch compare** or **tag compare** mode, patchgen uses `git diff` instead of `git format-patch`. This means **commit messages are not included** in the patch output.
 
 A note is displayed in the CLI when this happens, and the summary shows "Commit messages not included".
 :::
@@ -86,6 +101,19 @@ When files are selected, the summary reflects the selection:
 │ Files selected: 2 files
 │ Note: Commit messages not included
 │ Output file: main-feat-login.patch
+└
+```
+
+Tag compare with selected files:
+
+```
+┌ Summary
+│ Patch type: Compare tags
+│ From tag: v1.0.0
+│ To tag: v1.1.0
+│ Files selected: 2 files
+│ Note: Commit messages not included
+│ Output file: v1.0.0-v1.1.0.patch
 └
 ```
 

@@ -22,7 +22,7 @@ git format-patch main..feat/login --stdout
 When selecting specific files, patchgen switches to `git diff` (commit messages are not available):
 
 ```bash
-git diff main...feat/login -- file1.ts file2.ts
+git diff main..feat/login -- file1.ts file2.ts
 ```
 
 ::: warning
