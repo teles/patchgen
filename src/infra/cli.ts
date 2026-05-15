@@ -64,6 +64,25 @@ export async function promptBranchName(
   return ((result as string) || defaultValue).trim()
 }
 
+export async function promptTagName(
+  message: string,
+  defaultValue?: string,
+): Promise<string> {
+  const placeholder = defaultValue ?? 'v1.0.0'
+  const result = await text({
+    message,
+    defaultValue,
+    placeholder,
+    validate: (value) => {
+      const trimmed = (value || defaultValue || '').trim()
+      if (!trimmed) return 'Tag name is required.'
+    },
+  })
+
+  if (isCancel(result)) showCancel()
+  return ((result as string) || defaultValue || '').trim()
+}
+
 export async function promptOutputFileName(defaultFileName: string): Promise<string> {
   const result = await text({
     message: 'Output file name:',
@@ -129,9 +148,10 @@ export async function promptSelectFiles(files: string[]): Promise<string[]> {
 }
 
 export function showFileSelectionWarning(mode: string): void {
-  if (mode === 'branch-compare') {
+  if (mode === 'branch-compare' || mode === 'tag-compare') {
+    const compareLabel = mode === 'tag-compare' ? 'tag compare' : 'branch compare'
     note(
-      'When selecting specific files in branch compare mode,\ncommit messages will not be included in the patch.',
+      `When selecting specific files in ${compareLabel} mode,\ncommit messages will not be included in the patch.`,
       'Note'
     )
   }

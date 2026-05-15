@@ -60,3 +60,21 @@ export async function getBranchCompareFiles(baseBranch: string, featureBranch: s
     return []
   }
 }
+
+export async function getRecentTags(limit = 2): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['tag', '--sort=-creatordate'])
+    return stdout.trim().split('\n').filter(Boolean).slice(0, limit)
+  } catch {
+    return []
+  }
+}
+
+export async function getTagCompareFiles(fromTag: string, toTag: string): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['diff', '--name-only', `${fromTag}..${toTag}`])
+    return stdout.trim().split('\n').filter(Boolean)
+  } catch {
+    return []
+  }
+}

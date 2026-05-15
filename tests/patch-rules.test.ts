@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { findPatchRule, patchRules } from '../src/config/patch-rules.js'
 
 describe('patchRules', () => {
-  it('contains staged and branch-compare rules', () => {
+  it('contains staged, branch-compare, and tag-compare rules', () => {
     const types = patchRules.map((r) => r.type)
     expect(types).toContain('staged')
     expect(types).toContain('branch-compare')
+    expect(types).toContain('tag-compare')
   })
 
   it('each rule has required fields', () => {
@@ -27,6 +28,10 @@ describe('findPatchRule', () => {
 
   it('finds branch-compare rule', () => {
     expect(findPatchRule('branch-compare')?.type).toBe('branch-compare')
+  })
+
+  it('finds tag-compare rule', () => {
+    expect(findPatchRule('tag-compare')?.type).toBe('tag-compare')
   })
 
   it('returns undefined for unknown mode', () => {
@@ -87,6 +92,36 @@ describe('branch-compare rule integration', () => {
       { label: 'Base branch', value: 'main' },
       { label: 'Feature branch', value: 'feat-login' },
       { label: 'Output file', value: 'main-feat-login.patch' },
+    ])
+  })
+})
+
+describe('tag-compare rule integration', () => {
+  const rule = findPatchRule('tag-compare')!
+  const params = { mode: 'tag-compare' as const, fromTag: 'v1.0.0', toTag: 'v1.1.0' }
+
+  it('builds default file name', () => {
+    expect(rule.buildDefaultFileName(params)).toBe('v1.0.0-v1.1.0.patch')
+  })
+
+  it('builds git command', () => {
+    expect(rule.buildGitCommand(params)).toEqual({
+      command: 'git',
+      args: ['format-patch', 'v1.0.0..v1.1.0', '--stdout'],
+    })
+  })
+
+  it('validates correct input with no errors', () => {
+    expect(rule.validate(params)).toEqual([])
+  })
+
+  it('builds summary with all fields', () => {
+    const summary = rule.buildSummary(params, 'v1.0.0-v1.1.0.patch')
+    expect(summary).toEqual([
+      { label: 'Patch type', value: 'Compare tags' },
+      { label: 'From tag', value: 'v1.0.0' },
+      { label: 'To tag', value: 'v1.1.0' },
+      { label: 'Output file', value: 'v1.0.0-v1.1.0.patch' },
     ])
   })
 })

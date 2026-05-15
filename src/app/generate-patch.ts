@@ -1,10 +1,19 @@
 import type { PatchParams, FileSelection } from '../core/patch-types.js'
 import { findPatchRule } from '../config/patch-rules.js'
-import { runGitCommand, getStagedFiles, getBranchCompareFiles } from '../infra/git.js'
+import {
+  runGitCommand,
+  getStagedFiles,
+  getBranchCompareFiles,
+  getTagCompareFiles,
+  getRecentTags,
+  getCurrentBranch,
+  getDefaultBranch,
+} from '../infra/git.js'
 import { writePatchFile, fileExists } from '../infra/fs.js'
 import {
   promptPatchMode,
   promptBranchName,
+  promptTagName,
   promptOutputFileName,
   promptConfirm,
   promptFileSelectionMode,
@@ -14,7 +23,6 @@ import {
   showFileSelectionWarning,
   createSpinner,
 } from '../infra/cli.js'
-import { getCurrentBranch, getDefaultBranch } from '../infra/git.js'
 
 async function collectBranchCompareParams(): Promise<Extract<PatchParams, { mode: 'branch-compare' }>> {
   const suggestedBase = await getDefaultBranch()
@@ -26,9 +34,21 @@ async function collectBranchCompareParams(): Promise<Extract<PatchParams, { mode
   return { mode: 'branch-compare', baseBranch, featureBranch }
 }
 
+async function collectTagCompareParams(): Promise<Extract<PatchParams, { mode: 'tag-compare' }>> {
+  const suggestedTags = await getRecentTags()
+
+  const fromTag = await promptTagName('From tag:', suggestedTags[1])
+  const toTag = await promptTagName('To tag:', suggestedTags[0])
+
+  return { mode: 'tag-compare', fromTag, toTag }
+}
+
 async function collectParams(mode: string): Promise<PatchParams> {
   if (mode === 'branch-compare') {
     return collectBranchCompareParams()
+  }
+  if (mode === 'tag-compare') {
+    return collectTagCompareParams()
   }
   return { mode: 'staged' }
 }
@@ -37,7 +57,10 @@ async function getChangedFiles(params: PatchParams): Promise<string[]> {
   if (params.mode === 'staged') {
     return getStagedFiles()
   }
-  return getBranchCompareFiles(params.baseBranch, params.featureBranch)
+  if (params.mode === 'branch-compare') {
+    return getBranchCompareFiles(params.baseBranch, params.featureBranch)
+  }
+  return getTagCompareFiles(params.fromTag, params.toTag)
 }
 
 async function collectFileSelection(params: PatchParams): Promise<FileSelection | undefined> {
@@ -78,6 +101,18 @@ async function handleOverwrite(outputFileName: string): Promise<void> {
 
   const overwrite = await promptConfirm(`"${outputFileName}" already exists. Overwrite?`)
   if (!overwrite) showError('Aborted. File not overwritten.')
+}
+
+function buildEmptyPatchMessage(params: PatchParams): string {
+  if (params.mode === 'staged') {
+    return 'No staged changes found.'
+  }
+
+  if (params.mode === 'branch-compare') {
+    return `No differences found between '${params.baseBranch}' and '${params.featureBranch}'.`
+  }
+
+  return `No differences found between tags '${params.fromTag}' and '${params.toTag}'.`
 }
 
 export async function generatePatch(): Promise<void> {
@@ -123,12 +158,7 @@ export async function generatePatch(): Promise<void> {
   spin.stop('Done.')
 
   if (!patchContent!.trim()) {
-    const emptyMessage =
-      mode === 'staged'
-        ? 'No staged changes found.'
-        : `No differences found between '${(params as Extract<PatchParams, { mode: 'branch-compare' }>).baseBranch}' and '${(params as Extract<PatchParams, { mode: 'branch-compare' }>).featureBranch}'.`
-
-    showError(emptyMessage)
+    showError(buildEmptyPatchMessage(params))
   }
 
   const writeSpin = createSpinner()

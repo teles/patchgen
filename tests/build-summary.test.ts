@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStagedSummary, buildBranchCompareSummary } from '../src/core/build-summary.js'
+import { buildStagedSummary, buildBranchCompareSummary, buildTagCompareSummary } from '../src/core/build-summary.js'
 import type { FileSelection } from '../src/core/patch-types.js'
 
 describe('buildStagedSummary', () => {
@@ -44,6 +44,25 @@ describe('buildBranchCompareSummary', () => {
   it('includes file count and note when files are selected', () => {
     const fileSelection: FileSelection = { mode: 'selected', files: ['a.ts', 'b.ts'] }
     const items = buildBranchCompareSummary('main', 'feat-login', 'main-feat-login.patch', fileSelection)
+    expect(items).toContainEqual({ label: 'Files selected', value: '2 files' })
+    expect(items).toContainEqual({ label: 'Note', value: 'Commit messages not included' })
+  })
+})
+
+describe('buildTagCompareSummary', () => {
+  it('returns correct summary items', () => {
+    const items = buildTagCompareSummary('v1.0.0', 'v1.1.0', 'v1.0.0-v1.1.0.patch')
+    expect(items).toEqual([
+      { label: 'Patch type', value: 'Compare tags' },
+      { label: 'From tag', value: 'v1.0.0' },
+      { label: 'To tag', value: 'v1.1.0' },
+      { label: 'Output file', value: 'v1.0.0-v1.1.0.patch' },
+    ])
+  })
+
+  it('includes file count and note when files are selected', () => {
+    const fileSelection: FileSelection = { mode: 'selected', files: ['a.ts', 'b.ts'] }
+    const items = buildTagCompareSummary('v1.0.0', 'v1.1.0', 'v1.0.0-v1.1.0.patch', fileSelection)
     expect(items).toContainEqual({ label: 'Files selected', value: '2 files' })
     expect(items).toContainEqual({ label: 'Note', value: 'Commit messages not included' })
   })

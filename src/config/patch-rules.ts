@@ -1,13 +1,17 @@
 import { buildStagedFileName } from '../core/build-staged-file-name.js'
 import { buildBranchCompareFileName } from '../core/build-branch-compare-file-name.js'
+import { buildTagCompareFileName } from '../core/build-tag-compare-file-name.js'
 import { buildStagedGitCommand } from '../core/build-staged-git-command.js'
 import { buildBranchCompareGitCommand } from '../core/build-branch-compare-git-command.js'
+import { buildTagCompareGitCommand } from '../core/build-tag-compare-git-command.js'
 import { validateBranchCompareInput } from '../core/validate-branch-compare-input.js'
-import { buildStagedSummary, buildBranchCompareSummary } from '../core/build-summary.js'
+import { validateTagCompareInput } from '../core/validate-tag-compare-input.js'
+import { buildStagedSummary, buildBranchCompareSummary, buildTagCompareSummary } from '../core/build-summary.js'
 import type { PatchRule, PatchParams, FileSelection } from '../core/patch-types.js'
 
 type StagedParams = Extract<PatchParams, { mode: 'staged' }>
 type BranchCompareParams = Extract<PatchParams, { mode: 'branch-compare' }>
+type TagCompareParams = Extract<PatchParams, { mode: 'tag-compare' }>
 
 function getSelectedFiles(fileSelection?: FileSelection): string[] | undefined {
   if (fileSelection?.mode === 'selected') {
@@ -41,9 +45,25 @@ const branchCompareRule: PatchRule<BranchCompareParams> = {
     buildBranchCompareSummary(params.baseBranch, params.featureBranch, outputFileName, params.fileSelection),
 }
 
+const tagCompareRule: PatchRule<TagCompareParams> = {
+  type: 'tag-compare',
+  label: 'Compare tags',
+  description: 'Generate a patch from commits between two tags, useful for release notes',
+  buildDefaultFileName: (params) => buildTagCompareFileName(params.fromTag, params.toTag),
+  buildGitCommand: (params) => buildTagCompareGitCommand(
+    params.fromTag,
+    params.toTag,
+    getSelectedFiles(params.fileSelection)
+  ),
+  validate: (params) => validateTagCompareInput(params.fromTag, params.toTag),
+  buildSummary: (params, outputFileName) =>
+    buildTagCompareSummary(params.fromTag, params.toTag, outputFileName, params.fileSelection),
+}
+
 export const patchRules: PatchRule[] = [
   stagedRule as PatchRule,
   branchCompareRule as PatchRule,
+  tagCompareRule as PatchRule,
 ]
 
 export function findPatchRule(mode: string): PatchRule | undefined {
