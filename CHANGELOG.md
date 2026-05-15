@@ -1,5 +1,28 @@
 # 1.0.0 (2026-03-28)
 
+## v1.1.0
+
+Released on 2026-05-15.
+
+### Features
+
+- add tag comparison patch mode ([3b5caec](https://github.com/teles/patchgen/commit/3b5caec4cde566f58134efdc93fd39fe74180b3f))
+
+### Other Changes
+
+- ci(release): use zero-release ([7606a01](https://github.com/teles/patchgen/commit/7606a0178011a650b32c4c1189ffc73240642a9b))
+- docs: document tag comparison workflow ([e9ea031](https://github.com/teles/patchgen/commit/e9ea031c227aeb18f016c2792366af93e61d1968))
+- ci: add github pages deploy workflow for docs ([bd2bcc0](https://github.com/teles/patchgen/commit/bd2bcc0ee1a2215ca078ba9b413c93b3528007f3))
+- docs: add reference pages for CLI flow, git commands, and limitations ([bac3baa](https://github.com/teles/patchgen/commit/bac3baaea8082255ace367ce2744955a9c9d08e3))
+- docs: add use case pages for staged, branch-compare, file-selection, and AI ([26382dc](https://github.com/teles/patchgen/commit/26382dcba9c9654cbfcc490beabd98e87ee59c36))
+- docs: add getting-started and why-patchgen guides ([ef56d34](https://github.com/teles/patchgen/commit/ef56d346206bef89533a4272d29c69adcd072d46))
+- docs: add landing page ([a66ffc3](https://github.com/teles/patchgen/commit/a66ffc35f53a1b75bdfd211c6fda6a1adab18c83))
+- docs: add vitepress config and logo ([f323f03](https://github.com/teles/patchgen/commit/f323f035ecf10ced1a93f004eaf1257de9bf28be))
+- chore: add vitepress and docs scripts ([eb7216c](https://github.com/teles/patchgen/commit/eb7216c71ad0f3c84b490cf6326a8aa81d1ab08b))
+- chore: add vitepress build artifacts to gitignore ([3b76be0](https://github.com/teles/patchgen/commit/3b76be0ed2438c18a85dc9e5339095c459ba1b33))
+
+[Compare changes](https://github.com/teles/patchgen/compare/v1.0.0...v1.1.0)
+
 
 ### Features
 
